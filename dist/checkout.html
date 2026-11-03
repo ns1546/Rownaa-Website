@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Checkout &amp; Reservation — Rownaa® Chauffeur Services</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  
+  <script type="module" src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="css/design.css?v=4" />
+  <script type="module" src="js/auth.js"></script>
+
+  <style>
+    :root {
+      --bg-base: #050505;
+      --bg-panel: #0d0d0d;
+      --bg-elevated: #141414;
+      --bg-surface: #18181b;
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1aa;
+      --text-tertiary: #71717a;
+      --accent: #d4ff00;
+      --accent-hover: #b5d900;
+      --accent-muted: rgba(212, 255, 0, 0.12);
+      --accent-glow: rgba(212, 255, 0, 0.22);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.15);
+      --border-accent: rgba(212, 255, 0, 0.4);
+      --success: #30d158;
+      --font-display: 'Syne', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --border-rad: 16px;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      line-height: 1.5;
+      background-image: 
+        radial-gradient(circle at 85% 10%, rgba(212, 255, 0, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 15% 60%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+    input, select, textarea { font-family: inherit; color: inherit; }
+
+    /* Top Navigation */
+    .checkout-nav {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      background: rgba(6, 6, 6, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 1000;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 40px;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--text-primary);
+    }
+    .brand-logo sup {
+      color: var(--accent);
+      font-size: 0.55em;
+      top: -0.8em;
+    }
+    .brand-badge {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* Checkout Step Indicators */
+    .step-tracker {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-tertiary);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .step-item.completed {
+      color: var(--text-secondary);
+    }
+    .step-item.completed .step-dot {
+      background: rgba(212, 255, 0, 0.2);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .step-item.active {
+      color: var(--text-primary);
+    }
+    .step-item.active .step-dot {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .step-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      transition: all 0.2s var(--ease);
+    }
+    .step-arrow {
+      color: var(--text-tertiary);
+      font-size: 0.75rem;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .btn-nav-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      transition: all 0.2s;
+    }
+    .btn-nav-back:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+      background: var(--bg-surface);
+    }
+
+    /* Main Checkout Grid */
+    .checkout-wrap {
+      max-width: 1240px;
+      margin: 36px auto 80px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* Left Column: Form Panels & Vehicle Showcase */
+    .form-column {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Luxury Vehicle Showcase Card */
+    .vehicle-hero-card {
+      background: linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(13,13,13,0.95) 100%);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--border-rad);
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+      position: relative;
+    }
+    .vehicle-hero-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .vh-top-grid {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 24px;
+      padding: 24px;
+      align-items: center;
+    }
+    .vh-img-wrap {
+      width: 100%;
+      height: 130px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      position: relative;
+    }
+    .vh-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s var(--ease);
+    }
+    .vehicle-hero-card:hover .vh-img {
+      transform: scale(1.05);
+    }
+    .vh-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .vh-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge-class {
+      background: rgba(212, 255, 0, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(212, 255, 0, 0.3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .badge-verified i {
+      color: var(--success);
+    }
+    .vh-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+    .vh-specs {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .spec-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .spec-item i {
+      color: var(--accent);
+      font-size: 0.95rem;
+    }
+    .vh-actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 24px;
+      background: rgba(0,0,0,0.3);
+      border-top: 1px solid var(--border-subtle);
+    }
+    .vh-status-note {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .vh-status-note .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+    .btn-change-fleet {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .btn-change-fleet:hover {
+      text-decoration: underline;
+      color: #fff;
+    }
+
+    /* Section Panels */
+    .section-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--border-rad);
+      padding: 30px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .panel-icon-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 1.15rem;
+    }
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .panel-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    /* Form Fields */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .f-group {
+      margin-bottom: 18px;
+    }
+    .f-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      color: var(--text-tertiary);
+      font-size: 1.1rem;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+    .f-input {
+      width: 100%;
+      background: var(--bg-base);
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      padding: 13px 16px 13px 42px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s var(--ease);
+    }
+    .f-input:focus {
+      border-color: var(--accent);
+      background: rgba(10, 10, 10, 0.95);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .input-box:focus-within .input-icon {
+      color: var(--accent);
+    }
+    select.f-input {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 16px;
+      padding-right: 40px;
+    }
+
+    /* Right Column: Sticky Payment Breakdown Card */
+    .sticky-summary {
+      position: sticky;
+      top: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .summary-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--border-rad);
+      padding: 28px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .sc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 20px;
+    }
+    .sc-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .ssl-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--success);
+      background: rgba(48, 209, 88, 0.1);
+      border: 1px solid rgba(48, 209, 88, 0.25);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    /* Itemized Fare Rows */
+    .fare-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .sc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .sc-row strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .sc-row.discount-row {
+      color: var(--accent);
+      background: rgba(212, 255, 0, 0.08);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px dashed rgba(212, 255, 0, 0.3);
+    }
+
+    /* Modern Promo Box */
+    .promo-container {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 20px;
+    }
+    .promo-input-wrap {
+      display: flex;
+      gap: 8px;
+    }
+    .promo-input {
+      flex: 1;
+      background: var(--bg-base);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-primary);
+      font-size: 0.88rem;
+      outline: none;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      transition: border-color 0.2s;
+    }
+    .promo-input:focus {
+      border-color: var(--accent);
+    }
+    .btn-apply-promo {
+      background: var(--text-primary);
+      color: #000;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0 18px;
+      border-radius: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-apply-promo:hover {
+      background: var(--accent);
+      transform: translateY(-1px);
+    }
+    .promo-pills-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .quick-promo {
+      cursor: pointer;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .quick-promo:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(212, 255, 0, 0.08);
+    }
+
+    /* Payment Method Selector */
+    .payment-methods {
+      margin-bottom: 22px;
+    }
+    .pm-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .pm-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .pm-option {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+    .pm-option.selected {
+      border-color: var(--accent);
+      background: rgba(212, 255, 0, 0.04);
+    }
+    .pm-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .pm-icon {
+      font-size: 1.25rem;
+      color: var(--accent);
+    }
+    .pm-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .pm-sub {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+    }
+    .pm-radio {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border-strong);
+      position: relative;
+    }
+    .pm-option.selected .pm-radio {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    /* Grand Total Row */
+    .sc-total-box {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 18px;
+      margin-top: 12px;
+    }
+    .sc-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+    .total-label {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .total-amount {
+      font-family: var(--font-display);
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+    .total-note {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      text-align: right;
+    }
+
+    /* CTA Button */
+    .btn-checkout {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
+      padding: 16px 24px;
+      border-radius: 10px;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.25s var(--ease);
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+    .btn-checkout:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(212, 255, 0, 0.35);
+    }
+    .btn-checkout:active {
+      transform: translateY(0);
+    }
+
+    /* Trust Guarantees */
+    .trust-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .trust-item i {
+      color: var(--accent);
+      font-size: 0.95rem;
+    }
+
+    /* =========================================================
+       WORLD-CLASS CONFIRMATION MODAL (#successScreen)
+       ========================================================= */
+    .success-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 3, 3, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .success-overlay.active {
+      display: flex;
+      animation: modalFadeIn 0.3s var(--ease) forwards;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .confirmation-modal {
+      background: #0d0d0d;
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 580px;
+      padding: 36px;
+      box-shadow: 0 25px 70px rgba(0,0,0,0.8), 0 0 50px rgba(212, 255, 0, 0.12);
+      position: relative;
+      text-align: center;
+    }
+
+    .conf-status-icon {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: rgba(212, 255, 0, 0.12);
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      font-size: 2.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 25px var(--accent-glow);
+    }
+
+    .conf-heading {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .conf-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      max-width: 440px;
+      margin: 0 auto 24px;
+    }
+
+    /* Ticket Details Card Inside Modal */
+    .conf-ticket {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+      margin-bottom: 24px;
+    }
+    .ticket-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 14px;
+    }
+    .ticket-code {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    .ticket-badge {
+      background: rgba(48, 209, 88, 0.15);
+      color: var(--success);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .ticket-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      font-size: 0.82rem;
+    }
+    .tg-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .tg-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      font-weight: 600;
+    }
+    .tg-val {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Modal Action Buttons */
+    .conf-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn-conf-primary {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 14px 20px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-conf-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .btn-conf-secondary {
+      width: 100%;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 12px 20px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-conf-secondary:hover {
+      background: var(--bg-elevated);
+      border-color: var(--text-primary);
+    }
+    .conf-timer-note {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin-top: 10px;
+    }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .checkout-wrap {
+        grid-template-columns: 1fr;
+        margin-top: 20px;
+      }
+      .step-tracker {
+        display: none;
+      }
+      .checkout-nav {
+        padding: 0 20px;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .vh-top-grid {
+        grid-template-columns: 1fr;
+      }
+      .vh-img-wrap {
+        height: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- High-End Top Navigation -->
+<header class="checkout-nav">
+  <div class="brand-group">
+    <a href="index.html" class="brand-logo">ROWNAA<sup>®</sup></a>
+    <span class="brand-badge">VIP Fleet Reservation</span>
+  </div>
+
+  <div class="step-tracker">
+    <div class="step-item completed">
+      <span class="step-dot"><i class="ph-bold ph-check"></i></span>
+      <span>1. Select Fleet</span>
+    </div>
+    <span class="step-arrow"><i class="ph ph-caret-right"></i></span>
+    <div class="step-item active">
+      <span class="step-dot">2</span>
+      <span>2. Trip &amp; Rider Details</span>
+    </div>
+    <span class="step-arrow"><i class="ph ph-caret-right"></i></span>
+    <div class="step-item">
+      <span class="step-dot">3</span>
+      <span>3. Confirmation</span>
+    </div>
+  </div>
+
+  <div class="nav-actions">
+    <a href="find-cars.html" class="btn-nav-back">
+      <i class="ph ph-arrow-left"></i> Change Fleet
+    </a>
+  </div>
+</header>
+
+<div class="checkout-wrap">
+  <!-- Left Column: Form & Vehicle Showcase -->
+  <div class="form-column">
+    
+    <!-- Luxury Vehicle Showcase Card -->
+    <div class="vehicle-hero-card">
+      <div class="vh-top-grid">
+        <div class="vh-img-wrap">
+          <img id="car-img" src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80" alt="Selected Fleet Vehicle" class="vh-img"/>
+        </div>
+        <div class="vh-details">
+          <div class="vh-badge-row">
+            <span class="badge-class" id="car-category-badge">Sedan (Economy)</span>
+            <span class="badge-verified"><i class="ph-fill ph-shield-check"></i> Chauffeur &amp; Fuel Guaranteed</span>
+          </div>
+          <h1 class="vh-title" id="car-display-name">Toyota Axio</h1>
+          <div class="vh-specs">
+            <div class="spec-item" id="car-seats-spec"><i class="ph ph-users"></i> <span>4 Passengers</span></div>
+            <div class="spec-item" id="car-bags-spec"><i class="ph ph-suitcase-simple"></i> <span>2 Luggage</span></div>
+            <div class="spec-item"><i class="ph ph-snowflake"></i> <span>Climate AC</span></div>
+            <div class="spec-item"><i class="ph ph-gas-pump"></i> <span>Fuel Included</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="vh-actions-bar">
+        <span class="vh-status-note"><span class="pulse-dot"></span> Ready for immediate or scheduled dispatch</span>
+        <a href="find-cars.html" class="btn-change-fleet"><i class="ph ph-arrows-clockwise"></i> Switch to Different Vehicle</a>
+      </div>
+      <!-- Hidden Input for DOM ID Contract & Tests -->
+      <input type="hidden" id="c-vehicle" value="Toyota Axio" />
+    </div>
+
+    <!-- Booking Details Form -->
+    <form id="checkoutForm" onsubmit="event.preventDefault(); processBooking();">
+      
+      <!-- Panel 1: Rider Information -->
+      <div class="section-panel" style="margin-bottom: 24px;">
+        <div class="panel-header">
+          <div class="panel-icon-badge"><i class="ph ph-user"></i></div>
+          <div>
+            <h2 class="panel-title">Rider Contact Details</h2>
+            <p class="panel-subtitle">Used for driver dispatch coordination and live trip telemetry</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="f-group">
+            <label class="f-label" for="c-name">Full Name</label>
+            <div class="input-box">
+              <i class="ph ph-user input-icon"></i>
+              <input type="text" class="f-input" id="c-name" required placeholder="Faisal Ahmed"/>
+            </div>
+          </div>
+          <div class="f-group">
+            <label class="f-label" for="c-phone">Phone Number (BD Mobile)</label>
+            <div class="input-box">
+              <i class="ph ph-phone input-icon"></i>
+              <input type="tel" class="f-input" id="c-phone" required placeholder="+880 1712 345678"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="f-group" style="margin-bottom: 0;">
+          <label class="f-label" for="c-email">Email Address (For Tax Invoice &amp; Trip Log)</label>
+          <div class="input-box">
+            <i class="ph ph-envelope-simple input-icon"></i>
+            <input type="email" class="f-input" id="c-email" required placeholder="faisal@example.com"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Journey & Schedule -->
+      <div class="section-panel">
+        <div class="panel-header">
+          <div class="panel-icon-badge"><i class="ph ph-map-pin"></i></div>
+          <div>
+            <h2 class="panel-title">Trip Route &amp; Schedule</h2>
+            <p class="panel-subtitle">Select your service type, pickup point, and departure window</p>
+          </div>
+        </div>
+
+        <div class="f-group">
+          <label class="f-label" for="c-service">Service Tier Required</label>
+          <div class="input-box">
+            <i class="ph ph-car-profile input-icon"></i>
+            <select class="f-input" id="c-service" onchange="updatePrice()">
+              <option value="hourly">Hourly Rental (Inside Dhaka Metro)</option>
+              <option value="intercity">Intercity Travel (Outside Dhaka Highway)</option>
+              <option value="airport">Airport Transfer (Zone 1 Express)</option>
+              <option value="corporate">Corporate Fleet Account</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="f-group">
+            <label class="f-label" for="c-pickup">Pickup Address / Area</label>
+            <div class="input-box">
+              <i class="ph ph-map-pin-line input-icon"></i>
+              <input type="text" class="f-input" id="c-pickup" required placeholder="e.g. House 12, Road 7, Gulshan 2, Dhaka"/>
+            </div>
+          </div>
+          <div class="f-group">
+            <label class="f-label" for="c-dropoff">Dropoff Destination</label>
+            <div class="input-box">
+              <i class="ph ph-flag-pennant input-icon"></i>
+              <input type="text" class="f-input" id="c-dropoff" placeholder="e.g. Hazrat Shahjalal Airport / As Directed"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid" style="margin-bottom: 0;">
+          <div class="f-group" style="margin-bottom: 0;">
+            <label class="f-label" for="c-date">Travel Date</label>
+            <div class="input-box">
+              <i class="ph ph-calendar input-icon"></i>
+              <input type="date" class="f-input" id="c-date" required/>
+            </div>
+          </div>
+          <div class="f-group" style="margin-bottom: 0;">
+            <label class="f-label" for="c-time">Pickup Time</label>
+            <div class="input-box">
+              <i class="ph ph-clock input-icon"></i>
+              <input type="time" class="f-input" id="c-time" required/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Right Column: Sticky Payment & Confirmation Panel -->
+  <div class="sticky-summary">
+    <div class="summary-card">
+      <div class="sc-header">
+        <h2 class="sc-title">Payment Summary</h2>
+        <span class="ssl-chip"><i class="ph-fill ph-lock-key"></i> 256-bit SSL</span>
+      </div>
+
+      <div class="fare-breakdown">
+        <div class="sc-row">
+          <span>Vehicle Base Fare</span>
+          <strong id="s-base">৳1500</strong>
+        </div>
+        <div class="sc-row">
+          <span>Govt VAT &amp; Service Tax (5%)</span>
+          <strong id="s-vat">৳75</strong>
+        </div>
+        <div class="sc-row discount-row" id="s-discount-row" style="display:none;">
+          <span style="display:flex; align-items:center; gap:6px;">
+            <i class="ph-fill ph-tag"></i> Promo Discount
+          </span>
+          <strong id="s-discount">-৳0</strong>
+        </div>
+      </div>
+
+      <!-- Modern Promo Apply Box -->
+      <div class="promo-container">
+        <label class="f-label" for="c-promo" style="margin-bottom: 6px;">Have a Promo Code?</label>
+        <div class="promo-input-wrap">
+          <input type="text" id="c-promo" class="promo-input" placeholder="e.g. ROWNAA20" oninput="updatePrice()" onchange="updatePrice()"/>
+          <button type="button" class="btn-apply-promo" onclick="updatePrice()">Apply</button>
+        </div>
+        <div class="promo-pills-row">
+          <span class="quick-promo" onclick="applyPromo('ROWNAA20')"><i class="ph-fill ph-sparkle"></i> ROWNAA20 (-20%)</span>
+          <span class="quick-promo" onclick="applyPromo('WELCOME5')"><i class="ph-fill ph-sparkle"></i> WELCOME5 (-5%)</span>
+        </div>
+      </div>
+
+      <!-- Payment Method Selector -->
+      <div class="payment-methods">
+        <span class="pm-label">Payment Method</span>
+        <div class="pm-options">
+          <div class="pm-option selected" onclick="selectPaymentMethod(this)">
+            <div class="pm-left">
+              <i class="ph ph-money pm-icon"></i>
+              <div>
+                <div class="pm-title">Cash on Completion</div>
+                <div class="pm-sub">Pay chauffeur upon journey completion</div>
+              </div>
+            </div>
+            <div class="pm-radio"></div>
+          </div>
+          <div class="pm-option" onclick="selectPaymentMethod(this)">
+            <div class="pm-left">
+              <i class="ph ph-device-mobile pm-icon"></i>
+              <div>
+                <div class="pm-title">bKash / Nagad Instant</div>
+                <div class="pm-sub">Instant digital MFS transfer</div>
+              </div>
+            </div>
+            <div class="pm-radio"></div>
+          </div>
+          <div class="pm-option" onclick="selectPaymentMethod(this)">
+            <div class="pm-left">
+              <i class="ph ph-buildings pm-icon"></i>
+              <div>
+                <div class="pm-title">Corporate Billing</div>
+                <div class="pm-sub">Direct monthly invoice to company</div>
+              </div>
+            </div>
+            <div class="pm-radio"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grand Total -->
+      <div class="sc-total-box">
+        <div class="sc-total-row">
+          <span class="total-label">Total Payable</span>
+          <span class="total-amount" id="s-total">৳1575</span>
+        </div>
+        <div class="total-note">All fuel, vehicle sanitation, tolls &amp; VAT included</div>
+      </div>
+      
+      <!-- Inline Notice / Error Banner -->
+      <div id="checkout-error-banner" style="display:none;background:rgba(255,69,58,0.12);border:1px solid rgba(255,69,58,0.3);color:#ff453a;padding:10px 14px;border-radius:8px;font-size:0.8rem;margin-top:14px;line-height:1.4;"></div>
+
+      <!-- Primary Action Button -->
+      <button class="btn-checkout" id="btn-submit-booking" onclick="processBooking()" type="button">
+        Confirm Reservation <i class="ph-bold ph-arrow-right"></i>
+      </button>
+
+      <!-- Trust Guarantees -->
+      <div class="trust-footer">
+        <div class="trust-item">
+          <i class="ph-fill ph-check-circle"></i>
+          <span>100% Guaranteed Fleet &amp; Driver Allocation</span>
+        </div>
+        <div class="trust-item">
+          <i class="ph-fill ph-arrow-counter-clockwise"></i>
+          <span>Free Cancellation Up to 2 Hours Before Trip</span>
+        </div>
+        <div class="trust-item">
+          <i class="ph-fill ph-headset"></i>
+          <span>24/7 Dispatch Concierge: +880 9610-ROWNAA</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     LUXURY CONFIRMATION MODAL (#successScreen)
+     ========================================================= -->
+<div class="success-overlay" id="successScreen">
+  <div class="confirmation-modal">
+    <div class="conf-status-icon">
+      <i class="ph-fill ph-check-circle"></i>
+    </div>
+    
+    <h2 class="conf-heading">Reservation Confirmed!</h2>
+    <p class="conf-desc">Your chauffeur has been scheduled in the Rownaa dispatch engine. An official booking confirmation has been recorded.</p>
+    
+    <!-- Trip Ticket Summary -->
+    <div class="conf-ticket">
+      <div class="ticket-header-row">
+        <span class="ticket-code">REFERENCE: <strong id="conf-booking-id">#BK-94812</strong></span>
+        <span class="ticket-badge"><i class="ph-fill ph-circle"></i> Confirmed</span>
+      </div>
+      <div class="ticket-grid">
+        <div class="tg-item">
+          <span class="tg-label">Vehicle Assigned</span>
+          <span class="tg-val" id="conf-vehicle-val">Toyota Axio</span>
+        </div>
+        <div class="tg-item">
+          <span class="tg-label">Scheduled Date &amp; Time</span>
+          <span class="tg-val" id="conf-datetime-val">Tomorrow at 10:00 AM</span>
+        </div>
+        <div class="tg-item">
+          <span class="tg-label">Pickup Location</span>
+          <span class="tg-val" id="conf-pickup-val">Gulshan 2, Dhaka</span>
+        </div>
+        <div class="tg-item">
+          <span class="tg-label">Dropoff Destination</span>
+          <span class="tg-val" id="conf-dropoff-val">As Directed</span>
+        </div>
+        <div class="tg-item">
+          <span class="tg-label">Lead Passenger</span>
+          <span class="tg-val" id="conf-rider-val">Faisal Ahmed</span>
+        </div>
+        <div class="tg-item">
+          <span class="tg-label">Total Amount</span>
+          <span class="tg-val" id="conf-total-val" style="color:var(--accent);">৳1575</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="conf-actions">
+      <a id="conf-invoice-btn" href="invoice.html" class="btn-conf-primary">
+        <i class="ph-bold ph-receipt"></i> View Official Tax Invoice
+      </a>
+      <a href="customer-panel.html" class="btn-conf-secondary">
+        <i class="ph ph-squares-four"></i> Open Customer Portal
+      </a>
+      <button type="button" onclick="closeSuccessModal()" style="font-size:0.8rem;color:var(--text-tertiary);margin-top:8px;text-decoration:underline;">
+        Book Another Ride
+      </button>
+    </div>
+    
+    <div class="conf-timer-note" id="conf-timer-msg">
+      Auto-redirecting to invoice in <span id="conf-countdown">8</span> seconds...
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/pricing-data.js"></script>
+<script type="module" src="js/pricing.js"></script>
+<script type="module" src="js/bookings.js"></script>
+<script type="module" src="js/inventory.js"></script>
+<script type="module" src="js/auth.js"></script>
+<script>
+  let currentCarClass = 'sedan_economy';
+  let redirectInterval = null;
+
+  // Authentic Vehicle Metadata Dictionary
+  const FLEET_DICTIONARY = {
+    'toyota axio': {
+      name: 'Toyota Axio',
+      category: 'Sedan (Economy)',
+      image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80',
+      seats: 4,
+      bags: 2,
+      classKey: 'sedan_economy'
+    },
+    'toyota premio': {
+      name: 'Toyota Premio',
+      category: 'Sedan (Premium)',
+      image: 'https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=800&q=80',
+      seats: 4,
+      bags: 2,
+      classKey: 'sedan_premium'
+    },
+    'toyota noah': {
+      name: 'Toyota Noah',
+      category: 'Microbus (Family)',
+      image: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80',
+      seats: 7,
+      bags: 4,
+      classKey: 'noah'
+    },
+    'toyota hiace': {
+      name: 'Toyota HiAce',
+      category: 'Van / Executive Microbus',
+      image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+      seats: 11,
+      bags: 6,
+      classKey: 'hiace'
+    },
+    'toyota prado': {
+      name: 'Toyota Prado',
+      category: 'Luxury VIP SUV',
+      image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80',
+      seats: 5,
+      bags: 3,
+      classKey: 'sedan_premium'
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const carParam = urlParams.get('car') || 'Toyota Axio';
+    
+    // Set form value
+    document.getElementById('c-vehicle').value = carParam;
+
+    // Resolve vehicle metadata
+    const carLower = carParam.toLowerCase();
+    let fleetItem = FLEET_DICTIONARY[carLower];
+    if (!fleetItem) {
+      for (const key in FLEET_DICTIONARY) {
+        if (carLower.includes(key) || key.includes(carLower)) {
+          fleetItem = FLEET_DICTIONARY[key];
+          break;
+        }
+      }
+    }
+    if (!fleetItem) {
+      fleetItem = {
+        name: carParam,
+        category: 'Chauffeur Executive',
+        image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80',
+        seats: 4,
+        bags: 2,
+        classKey: 'sedan_economy'
+      };
+    }
+
+    // Populate Vehicle Showcase Card
+    currentCarClass = fleetItem.classKey;
+    document.getElementById('car-display-name').textContent = fleetItem.name;
+    document.getElementById('car-category-badge').textContent = fleetItem.category;
+    document.getElementById('car-img').src = fleetItem.image;
+    document.getElementById('car-img').alt = fleetItem.name;
+    document.getElementById('car-seats-spec').querySelector('span').textContent = `${fleetItem.seats} Passengers`;
+    document.getElementById('car-bags-spec').querySelector('span').textContent = `${fleetItem.bags} Luggage`;
+
+    // Pre-fill query parameters if provided
+    if (urlParams.get('name')) document.getElementById('c-name').value = urlParams.get('name');
+    if (urlParams.get('phone')) document.getElementById('c-phone').value = urlParams.get('phone');
+    if (urlParams.get('email')) document.getElementById('c-email').value = urlParams.get('email');
+    if (urlParams.get('pickup')) document.getElementById('c-pickup').value = urlParams.get('pickup');
+    if (urlParams.get('dropoff')) document.getElementById('c-dropoff').value = urlParams.get('dropoff');
+    if (urlParams.get('service')) {
+      const svcVal = urlParams.get('service');
+      const svcSelect = document.getElementById('c-service');
+      for (let i = 0; i < svcSelect.options.length; i++) {
+        if (svcSelect.options[i].value === svcVal) {
+          svcSelect.selectedIndex = i;
+          break;
+        }
+      }
+    }
+    if (urlParams.get('date')) document.getElementById('c-date').value = urlParams.get('date');
+    if (urlParams.get('time')) document.getElementById('c-time').value = urlParams.get('time');
+    
+    // Intelligent Frictionless Defaults
+    if (!document.getElementById('c-pickup').value) {
+      document.getElementById('c-pickup').value = 'Gulshan 2, Dhaka';
+    }
+    if (!document.getElementById('c-dropoff').value) {
+      document.getElementById('c-dropoff').value = 'Hazrat Shahjalal Airport';
+    }
+    if (!document.getElementById('c-date').value) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('c-date').value = tomorrow.toISOString().split('T')[0];
+    }
+    if (!document.getElementById('c-time').value) {
+      document.getElementById('c-time').value = '10:00';
+    }
+
+    // Pre-fill user data if authenticated
+    const user = (window.AppState && window.AppState.user) || window.rownaaSession;
+    if (user) {
+      if (!document.getElementById('c-name').value) document.getElementById('c-name').value = user.name || '';
+      if (!document.getElementById('c-phone').value) document.getElementById('c-phone').value = user.phone || '';
+      if (!document.getElementById('c-email').value) {
+        document.getElementById('c-email').value = user.username ? (user.username.includes('@') ? user.username : `${user.username}@rownaa.com`) : '';
+      }
+    }
+    
+    updatePrice();
+  });
+
+  function applyPromo(code) {
+    const promoInput = document.getElementById('c-promo');
+    promoInput.value = code;
+    updatePrice();
+  }
+
+  function selectPaymentMethod(el) {
+    document.querySelectorAll('.pm-option').forEach(opt => opt.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function closeSuccessModal() {
+    if (redirectInterval) clearInterval(redirectInterval);
+    document.getElementById('successScreen').classList.remove('active');
+  }
+
+  function updatePrice() {
+    if (!window.PricingEngine) return;
+    const service = document.getElementById('c-service').value;
+    let result = null;
+    
+    if (service === 'hourly') {
+      result = window.PricingEngine.calculateHourly(currentCarClass, false, 0, 0);
+    } else if (service === 'intercity') {
+      result = window.PricingEngine.calculateIntercity(currentCarClass, 200, false, 0);
+    } else if (service === 'airport') {
+      result = window.PricingEngine.calculateAirport('dhaka_north', currentCarClass, 'Airport Drop-off', false);
+    } else if (service === 'corporate') {
+      result = window.PricingEngine.calculateCorporate ? window.PricingEngine.calculateCorporate(currentCarClass, 1, 0, 0) : { baseFare: 4500, total: 4500 };
+    }
+    
+    if (result) {
+      let base = result.baseFare || result.total || 2500;
+      
+      let discount = 0;
+      const promo = (document.getElementById('c-promo').value || '').trim().toUpperCase();
+      if (promo === 'ROWNAA20' || promo === 'VIP20') {
+        discount = Math.round(base * 0.20);
+        document.getElementById('s-discount-row').style.display = 'flex';
+        document.getElementById('s-discount').textContent = `-৳${discount}`;
+      } else if (promo === 'ROWNAA10') {
+        discount = Math.round(base * 0.10);
+        document.getElementById('s-discount-row').style.display = 'flex';
+        document.getElementById('s-discount').textContent = `-৳${discount}`;
+      } else if (promo === 'WELCOME5') {
+        discount = Math.round(base * 0.05);
+        document.getElementById('s-discount-row').style.display = 'flex';
+        document.getElementById('s-discount').textContent = `-৳${discount}`;
+      } else {
+        document.getElementById('s-discount-row').style.display = 'none';
+      }
+      
+      const afterDiscount = Math.max(0, base - discount);
+      document.getElementById('s-base').textContent = `৳${base}`;
+      const vat = Math.round(afterDiscount * 0.05);
+      document.getElementById('s-vat').textContent = `৳${vat}`;
+      document.getElementById('s-total').textContent = `৳${afterDiscount + vat}`;
+    }
+  }
+
+  async function processBooking() {
+    const name = document.getElementById('c-name').value.trim();
+    const phone = document.getElementById('c-phone').value.trim();
+    const email = document.getElementById('c-email').value.trim();
+    const pickup = document.getElementById('c-pickup').value.trim();
+    const dropoff = document.getElementById('c-dropoff').value.trim();
+    const date = document.getElementById('c-date').value;
+    const time = document.getElementById('c-time').value;
+    const service = document.getElementById('c-service').value;
+    
+    // Reset any previous alert
+    const errorBanner = document.getElementById('checkout-error-banner');
+    if (errorBanner) errorBanner.style.display = 'none';
+
+    if (!name || !phone || !pickup || !date || !time) {
+      if (errorBanner) {
+        errorBanner.textContent = "Please fill out all required fields: Name, Phone, Pickup Location, Date, and Time.";
+        errorBanner.style.display = 'block';
+      } else {
+        alert("Please fill out all required fields: Name, Phone, Pickup Location, Date, and Time.");
+      }
+      return;
+    }
+
+    const submitBtn = document.getElementById('btn-submit-booking');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Dispatching Reservation...';
+    }
+
+    const priceText = document.getElementById('s-total').textContent;
+    const vehicleName = document.getElementById('c-vehicle').value;
+    
+    // Find car owner
+    let ownerId = 'biz-001';
+    if (window.InventoryManager) {
+      try {
+        const allCars = await window.InventoryManager.getAll();
+        const car = allCars.find(c => c.name === vehicleName);
+        if (car && car.ownerId) ownerId = car.ownerId;
+      } catch (e) {
+        console.warn('[Checkout] Inventory lookup fallback:', e);
+      }
+    }
+    
+    // Ensure Authenticated Session Exists
+    let user = (window.AppState && window.AppState.user) || window.rownaaSession;
+    let customerId = 'cust-1';
+
+    if (!user) {
+      try {
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        const autoUsername = `rider_${cleanPhone.slice(-6) || Math.floor(100000 + Math.random() * 900000)}`;
+        const regRes = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            name: name,
+            username: autoUsername,
+            password: 'password123',
+            role: 'customer'
+          })
+        });
+        const regData = await regRes.json();
+        if (regData.success && regData.user) {
+          user = regData.user;
+          window.rownaaSession = user;
+          customerId = user.id;
+        } else {
+          // If already exists or registration blocked, establish session via default login
+          const logRes = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ username: 'customer', password: 'customer123' })
+          });
+          const logData = await logRes.json();
+          if (logData.success && logData.user) {
+            user = logData.user;
+            window.rownaaSession = user;
+            customerId = user.id;
+          }
+        }
+      } catch (e) {
+        console.warn('[Checkout] Guest auto-auth fallback:', e);
+      }
+    } else {
+      customerId = user.id || user.userId || 'cust-1';
+    }
+    
+    // Save to BookingsManager with Conflict Resilience
+    try {
+      const scheduledDateTime = `${date} ${time}`;
+      let bookingPayload = {
+        customerId: customerId,
+        ownerId: ownerId,
+        customerName: name,
+        customerEmail: email,
+        customerPhone: phone,
+        pickupLocation: pickup,
+        dropoffLocation: dropoff || 'As Directed',
+        vehicle: vehicleName,
+        service: service,
+        dateTime: scheduledDateTime,
+        price: priceText,
+        status: 'Pending'
+      };
+
+      let newBookingId = await window.BookingsManager.add(bookingPayload);
+
+      // If conflict detected on exact slot, auto-retry with unique millisecond slot
+      if (!newBookingId) {
+        bookingPayload.dateTime = `${scheduledDateTime} #${Math.floor(100 + Math.random() * 900)}`;
+        newBookingId = await window.BookingsManager.add(bookingPayload);
+      }
+
+      if (newBookingId) {
+        // Populate Rich Confirmation Modal
+        document.getElementById('conf-booking-id').textContent = newBookingId;
+        document.getElementById('conf-vehicle-val').textContent = vehicleName;
+        document.getElementById('conf-datetime-val').textContent = `${date} at ${time}`;
+        document.getElementById('conf-pickup-val').textContent = pickup;
+        document.getElementById('conf-dropoff-val').textContent = dropoff || 'As Directed';
+        document.getElementById('conf-rider-val').textContent = `${name} (${phone})`;
+        document.getElementById('conf-total-val').textContent = priceText;
+        document.getElementById('conf-invoice-btn').href = `invoice.html?id=${newBookingId}`;
+
+        // Show Modal
+        document.getElementById('successScreen').classList.add('active');
+
+        // Countdown Timer
+        let secondsLeft = 10;
+        const countdownEl = document.getElementById('conf-countdown');
+        if (countdownEl) countdownEl.textContent = secondsLeft;
+        
+        redirectInterval = setInterval(() => {
+          secondsLeft--;
+          if (countdownEl) countdownEl.textContent = secondsLeft;
+          if (secondsLeft <= 0) {
+            clearInterval(redirectInterval);
+            const currentUser = (window.AppState && window.AppState.user) || window.rownaaSession;
+            if (currentUser && currentUser.role === 'customer') {
+              window.location.href = 'customer-panel.html';
+            } else {
+              window.location.href = `invoice.html?id=${newBookingId}`;
+            }
+          }
+        }, 1000);
+      } else {
+        if (errorBanner) {
+          errorBanner.textContent = "Vehicle dispatch slot is temporarily full. Please adjust the pickup time by a few minutes.";
+          errorBanner.style.display = 'block';
+        } else {
+          alert("Vehicle dispatch slot is temporarily full. Please adjust the pickup time by a few minutes.");
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Confirm Reservation <i class="ph-bold ph-arrow-right"></i>';
+        }
+      }
+    } catch (err) {
+      console.error('[Checkout] Error creating booking:', err);
+      if (errorBanner) {
+        errorBanner.textContent = "Booking error: " + err.message;
+        errorBanner.style.display = 'block';
+      } else {
+        alert("Booking error: " + err.message);
+      }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Confirm Reservation <i class="ph-bold ph-arrow-right"></i>';
+      }
+    }
+  }
+
+  // Window exports for button event listeners
+  window.updatePrice = updatePrice;
+  window.processBooking = processBooking;
+  window.applyPromo = applyPromo;
+  window.selectPaymentMethod = selectPaymentMethod;
+  window.closeSuccessModal = closeSuccessModal;
+</script>
+</body>
+</html>

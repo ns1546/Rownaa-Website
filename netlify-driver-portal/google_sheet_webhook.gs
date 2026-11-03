@@ -373,14 +373,8 @@ function setupDashboardSheet(ss) {
 function repairExistingErrors() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   
-  // 1. Clean Dashboard
-  var dash = ss.getSheetByName(SHEET_DASHBOARD_NAME);
-  if (dash) {
-    var lastRowDash = dash.getLastRow();
-    if (lastRowDash > 16) {
-      dash.deleteRows(17, lastRowDash - 16);
-    }
-  }
+  // 1. Clean & Rebuild Dashboard (Removes any rogue rows like Row 7)
+  setupDashboardSheet(ss);
 
   // 2. Realignment & WhatsApp Button Injection in Registry
   var sheet = ss.getSheetByName(SHEET_REGISTRY_NAME);
@@ -461,6 +455,24 @@ function repairExistingErrors() {
 
     Logger.log("Successfully realigned columns and injected WhatsApp buttons.");
   }
+
+  // 3. CRITICAL: Clear ANY legacy dropdown validations on Column R (Vehicle Profile) or other columns
+  sheet.getRange(2, 1, Math.max(lastRow, 500), 19).clearDataValidations();
+  sheet.getRange(2, 21, Math.max(lastRow, 500), 8).clearDataValidations();
+
+  // Re-apply status dropdown ONLY to Column T (Column 20)
+  var statusOptions = [
+    "Pending Verification",
+    "Under Review",
+    "Contacted & Scheduled",
+    "Approved & Verified",
+    "Rejected"
+  ];
+  var statusRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(statusOptions, true)
+    .setAllowInvalid(true)
+    .build();
+  sheet.getRange(2, 20, Math.max(lastRow, 500), 1).setDataValidation(statusRule);
 }
 
 /**
@@ -673,6 +685,10 @@ function doPost(e) {
     waCell.setFontWeight("bold");
     waCell.setHorizontalAlignment("center");
 
+    // Clear any rogue data validations from columns other than Status (Col 20)
+    sheet.getRange(lastRow, 1, 1, 19).clearDataValidations();
+    sheet.getRange(lastRow, 21, 1, 8).clearDataValidations();
+
     // Set Data Validation dropdown on Status cell (Col 20)
     var statusRule = SpreadsheetApp.newDataValidation()
       .requireValueInList(["Pending Verification", "Under Review", "Contacted & Scheduled", "Approved & Verified", "Rejected"], true)
@@ -711,6 +727,24 @@ function doPost(e) {
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : "health";
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  if (action === "repair" || action === "fix") {
+    repairExistingErrors();
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      message: "Rownaa Operations Self-Healing completed: WhatsApp buttons generated, NID aligned, phone errors fixed, legacy dropdown validations stripped, and dashboard refreshed!",
+      timestamp: new Date().toISOString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === "setup" || action === "rebuild") {
+    setupSheet();
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      message: "Full enterprise sheet rebuilt, dashboard reset, and data validations initialized!",
+      timestamp: new Date().toISOString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
 
   if (action === "getChauffeurs") {
     var sheet = ss.getSheetByName(SHEET_REGISTRY_NAME);

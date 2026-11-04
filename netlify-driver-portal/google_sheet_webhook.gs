@@ -444,8 +444,8 @@ function autoAlignAndRepairSheet(interactive) {
     "Photo Document",                         // Col Y (25) - Portrait / Owner Photo
     "Driver License (Front)",                 // Col Z (26) - Driver Lic Front
     "Driver License (Back)",                  // Col AA (27) - Driver Lic Back
-    "Car License / Blue Book (Front)",        // Col AB (28) - Car Reg / Blue Book Front
-    "Car License / Blue Book (Back)",         // Col AC (29) - Car Reg / Blue Book Back
+    "Car License (Front)",                    // Col AB (28) - Car License Front
+    "Car License (Back)",                     // Col AC (29) - Car License Back
     "Car Fitness / Tax Token Doc",            // Col AD (30) - Tax Token / Fitness Doc
     "NID (Front)",                            // Col AE (31) - Smart NID Front
     "NID (Back)",                             // Col AF (32) - Smart NID Back
@@ -948,8 +948,8 @@ function doPost(e) {
     var nidBackUrl = saveBase64DocumentToDrive(data.nidBackBase64, "05_owner_nid_back.jpg", applicantFolder);
 
     // 2. SAVE PRIMARY CAR REGISTRATION & TAX/FITNESS DOCUMENTS
-    var carLicFrontUrl = saveBase64DocumentToDrive(data.carLicenseFrontBase64 || data.carRegFrontBase64, "06_car_bluebook_front.jpg", applicantFolder);
-    var carLicBackUrl = saveBase64DocumentToDrive(data.carLicenseBackBase64 || data.carRegBackBase64, "07_car_bluebook_back.jpg", applicantFolder);
+    var carLicFrontUrl = saveBase64DocumentToDrive(data.carLicenseFrontBase64 || data.carRegFrontBase64, "06_car_license_front.jpg", applicantFolder);
+    var carLicBackUrl = saveBase64DocumentToDrive(data.carLicenseBackBase64 || data.carRegBackBase64, "07_car_license_back.jpg", applicantFolder);
     var carFitnessUrl = saveBase64DocumentToDrive(data.carFitnessBase64 || data.carTaxTokenBase64, "08_car_fitness_tax_token.jpg", applicantFolder);
 
     // 3. SAVE COMMERCIAL TRADE LICENSE (FOR RENTAL FLEETS)
@@ -965,7 +965,7 @@ function doPost(e) {
     if (carFitnessUrl) totalSavedDocsCount++;
     if (tradeLicUrl) totalSavedDocsCount++;
 
-    // 4. ⭐ SAVE MULTIPLE FLEET CARS' BLUE BOOKS & FITNESS (FOR RENTAL CAR FLEETS)
+    // 4. ⭐ SAVE MULTIPLE FLEET CARS' CAR LICENSES & FITNESS (FOR RENTAL CAR FLEETS)
     var fleetCarsList = (data.fleetData && (data.fleetData.vehicles || data.fleetData.cars)) || data.fleetVehicles || [];
     if (fleetCarsList.length > 0) {
       for (var fcIdx = 0; fcIdx < fleetCarsList.length; fcIdx++) {
@@ -974,8 +974,8 @@ function doPost(e) {
         var cPlateClean = String(fCar.reg || fCar.plate || fCar.plateNumber || ("Car_" + cNum)).replace(/[^a-zA-Z0-9_-]/g, "_");
         var cModelClean = String(fCar.model || fCar.make || "Vehicle").replace(/[^a-zA-Z0-9_-]/g, "_");
 
-        var cFront = saveBase64DocumentToDrive(fCar.carLicenseFront || fCar.blueBookFront, "Car_" + cNum + "_" + cModelClean + "_" + cPlateClean + "_BlueBook_Front.jpg", applicantFolder);
-        var cBack = saveBase64DocumentToDrive(fCar.carLicenseBack || fCar.blueBookBack, "Car_" + cNum + "_" + cModelClean + "_" + cPlateClean + "_BlueBook_Back.jpg", applicantFolder);
+        var cFront = saveBase64DocumentToDrive(fCar.carLicenseFront || fCar.blueBookFront, "Car_" + cNum + "_" + cModelClean + "_" + cPlateClean + "_CarLicense_Front.jpg", applicantFolder);
+        var cBack = saveBase64DocumentToDrive(fCar.carLicenseBack || fCar.blueBookBack, "Car_" + cNum + "_" + cModelClean + "_" + cPlateClean + "_CarLicense_Back.jpg", applicantFolder);
         var cFit = saveBase64DocumentToDrive(fCar.carFitness || fCar.taxToken, "Car_" + cNum + "_" + cModelClean + "_" + cPlateClean + "_Fitness.jpg", applicantFolder);
 
         if (cFront) { totalSavedDocsCount++; if (!carLicFrontUrl) carLicFrontUrl = cFront; }
@@ -984,7 +984,7 @@ function doPost(e) {
       }
     }
 
-    // 5. ⭐ SAVE MULTIPLE EMPLOYED DRIVERS' LICENSES & NID (FOR RENTAL CAR FLEETS)
+    // 5. ⭐ SAVE MULTIPLE EMPLOYED DRIVERS' PHOTOS, LICENSES & NID (FOR RENTAL CAR FLEETS)
     var fleetDriversList = (data.fleetData && data.fleetData.drivers) || data.fleetDrivers || [];
     if (fleetDriversList.length > 0) {
       for (var fdIdx = 0; fdIdx < fleetDriversList.length; fdIdx++) {
@@ -992,11 +992,13 @@ function doPost(e) {
         var dNum = fdIdx + 1;
         var dNameClean = String(fDriver.name || fDriver.fullName || ("Driver_" + dNum)).replace(/[^a-zA-Z0-9_-]/g, "_");
 
+        var dPhoto = saveBase64DocumentToDrive(fDriver.photo || fDriver.photoBase64, "Driver_" + dNum + "_" + dNameClean + "_Photo.jpg", applicantFolder);
         var dFront = saveBase64DocumentToDrive(fDriver.licenseFront, "Driver_" + dNum + "_" + dNameClean + "_License_Front.jpg", applicantFolder);
         var dBack = saveBase64DocumentToDrive(fDriver.licenseBack, "Driver_" + dNum + "_" + dNameClean + "_License_Back.jpg", applicantFolder);
         var dNidF = saveBase64DocumentToDrive(fDriver.nidFront, "Driver_" + dNum + "_" + dNameClean + "_NID_Front.jpg", applicantFolder);
         var dNidB = saveBase64DocumentToDrive(fDriver.nidBack, "Driver_" + dNum + "_" + dNameClean + "_NID_Back.jpg", applicantFolder);
 
+        if (dPhoto) { totalSavedDocsCount++; if (!photoUrl) photoUrl = dPhoto; }
         if (dFront) { totalSavedDocsCount++; if (!driverLicFrontUrl) driverLicFrontUrl = dFront; }
         if (dBack) { totalSavedDocsCount++; if (!driverLicBackUrl) driverLicBackUrl = dBack; }
         if (dNidF) totalSavedDocsCount++;
@@ -1008,8 +1010,8 @@ function doPost(e) {
     var photoFormula = photoUrl ? '=HYPERLINK("' + photoUrl + '", "🔍 View Photo")' : '—';
     var driverLicFrontFormula = driverLicFrontUrl ? '=HYPERLINK("' + driverLicFrontUrl + '", "📄 Lic Front")' : '—';
     var driverLicBackFormula = driverLicBackUrl ? '=HYPERLINK("' + driverLicBackUrl + '", "📄 Lic Back")' : '—';
-    var carLicFrontFormula = carLicFrontUrl ? '=HYPERLINK("' + carLicFrontUrl + '", "🚗 Blue Book Front")' : '—';
-    var carLicBackFormula = carLicBackUrl ? '=HYPERLINK("' + carLicBackUrl + '", "🚗 Blue Book Back")' : '—';
+    var carLicFrontFormula = carLicFrontUrl ? '=HYPERLINK("' + carLicFrontUrl + '", "🚗 Car License Front")' : '—';
+    var carLicBackFormula = carLicBackUrl ? '=HYPERLINK("' + carLicBackUrl + '", "🚗 Car License Back")' : '—';
     var carFitnessFormula = carFitnessUrl ? '=HYPERLINK("' + carFitnessUrl + '", "📑 Fitness/Tax Doc")' : '—';
     var nidFrontFormula = nidFrontUrl ? '=HYPERLINK("' + nidFrontUrl + '", "🪪 NID Front")' : '—';
     var nidBackFormula = nidBackUrl ? '=HYPERLINK("' + nidBackUrl + '", "🪪 NID Back")' : '—';

@@ -4342,75 +4342,128 @@
     }
 
     function populateSummary() {
-      const name = document.getElementById('drv-name').value || '—';
-      const phone = document.getElementById('drv-phone').value || '—';
-      const nid = document.getElementById('drv-nid').value || '—';
-      const licVal = document.getElementById('drv-license').value || '—';
-      const licExp = document.getElementById('drv-expiry').value || '—';
-      const carPlateVal = (role === 'car_owner_driver' ? (document.getElementById('drv-car-plate')?.value || '—') : (role === 'rental_fleet_operator' ? (fleetVehicles.map(v => v.plate).filter(Boolean).join(', ') || 'Fleet Multi-Car') : 'Rownaa Fleet Provided'));
-      const role = document.getElementById('drv-role-val').value;
-      const roleMap = {
-        'seeking_fleet_car': currentLang === 'bn' ? 'ফ্লিট শফার' : 'Fleet Chauffeur',
-        'car_owner_driver': currentLang === 'bn' ? 'ওনার-ড্রাইভার' : 'Owner-Driver',
-        'rental_fleet_operator': currentLang === 'bn' ? `রেন্ট-এ-কার ফ্লিট (${fleetVehicles.length} গাড়ি, ${fleetDrivers.length} ড্রাইভার)` : `Rental Fleet (${fleetVehicles.length} Cars, ${fleetDrivers.length} Drivers)`,
-        'part_time_freelance': currentLang === 'bn' ? 'অন-ডিমান্ড স্ট্যান্ডবাই' : 'On-Demand Standby'
-      };
-      const city = resolveFieldValue('drv-city', 'drv-city-custom');
-      const payoutMethod = resolveFieldValue('drv-payout-method', 'drv-payout-custom');
-      
-      let payoutDisplay = '—';
-      if (payoutMethod === 'Bank Transfer') {
-        const bankNameFinal = resolveFieldValue('bank-name', 'bank-name-custom');
-        const branch = document.getElementById('bank-branch')?.value || '';
-        const accName = document.getElementById('bank-account-name')?.value || '';
-        const accNum = document.getElementById('bank-account-number')?.value || '';
-        payoutDisplay = `${bankNameFinal || 'Bank'} (${branch || 'Branch'}) - A/C: ${accNum || '—'} [${accName || '—'}]`;
-      } else {
-        const payoutNum = document.getElementById('drv-payout-number')?.value || '—';
-        payoutDisplay = `${payoutMethod} (${payoutNum})`;
-      }
+      try {
+        const role = document.getElementById('drv-role-val')?.value || 'seeking_fleet_car';
+        const name = document.getElementById('drv-name')?.value?.trim() || '—';
+        const phone = document.getElementById('drv-phone')?.value?.trim() || '—';
+        const nid = document.getElementById('drv-nid')?.value?.trim() || '—';
+        const licVal = document.getElementById('drv-license')?.value?.trim() || '—';
+        const licExp = document.getElementById('drv-expiry')?.value?.trim() || '—';
+        const isFleet = (role === 'rental_fleet_operator');
+        const isOwnerDriver = (role === 'car_owner_driver');
 
-      const svcs = [];
-      document.querySelectorAll('input[name="services"]:checked').forEach(cb => svcs.push(cb.value));
+        const carPlateVal = isOwnerDriver
+          ? (document.getElementById('drv-car-plate')?.value?.trim() || '—')
+          : (isFleet ? (`${fleetVehicles.length} Cars (${fleetVehicles.map(v => v.plate).filter(Boolean).join(', ') || 'Plates Pending'})`) : 'Rownaa Fleet Provided');
 
-      // Docs summary
-      const docsArr = [];
-      if (document.getElementById('file-photo')?.files?.[0]) docsArr.push(currentLang === 'bn' ? 'ছবি ✓' : 'Photo ✓');
-      if (document.getElementById('file-license-front')?.files?.[0]) docsArr.push(currentLang === 'bn' ? 'লাইসেন্স (সামনে) ✓' : 'Lic Front ✓');
-      if (document.getElementById('file-license-back')?.files?.[0]) docsArr.push(currentLang === 'bn' ? 'লাইসেন্স (পেছনে) ✓' : 'Lic Back ✓');
-      if (document.getElementById('file-nid-front')?.files?.[0]) docsArr.push(currentLang === 'bn' ? 'এনআইডি (সামনে) ✓' : 'NID Front ✓');
-      if (document.getElementById('file-nid-back')?.files?.[0]) docsArr.push(currentLang === 'bn' ? 'এনআইডি (পেছনে) ✓' : 'NID Back ✓');
-
-      // Resubmission status check
-      const isResubmit = document.getElementById('chk-is-resubmission')?.checked || false;
-      const resubmitReason = isResubmit ? (document.getElementById('resubmit-reason')?.value || 'Information Correction') : '';
-      const resubmitPrevId = isResubmit ? (document.getElementById('resubmit-prev-id')?.value.trim() || '') : '';
-      
-      let sumResubmitRow = document.getElementById('sum-row-resubmit');
-      if (isResubmit) {
-        if (!sumResubmitRow) {
-          sumResubmitRow = document.createElement('div');
-          sumResubmitRow.id = 'sum-row-resubmit';
-          sumResubmitRow.style.cssText = 'background:rgba(212,255,0,0.1); border:1px solid rgba(212,255,0,0.3); border-radius:8px; padding:10px 14px; margin-bottom:12px; font-size:0.82rem; color:#fff; display:flex; align-items:center; gap:8px;';
-          const sumTable = document.querySelector('.summary-card-body') || document.getElementById('driver-summary-table') || document.querySelector('.summary-box');
-          if (sumTable) sumTable.insertBefore(sumResubmitRow, sumTable.firstChild);
+        const roleMap = {
+          'seeking_fleet_car': currentLang === 'bn' ? 'ফ্লিট শফার' : 'Fleet Chauffeur',
+          'car_owner_driver': currentLang === 'bn' ? 'ওনার-ড্রাইভার' : 'Owner-Driver',
+          'rental_fleet_operator': currentLang === 'bn' ? `রেন্ট-এ-কার ফ্লিট (${fleetVehicles.length} গাড়ি, ${fleetDrivers.length} ড্রাইভার)` : `Rental Fleet (${fleetVehicles.length} Cars, ${fleetDrivers.length} Drivers)`,
+          'part_time_freelance': currentLang === 'bn' ? 'অন-ডিমান্ড স্ট্যান্ডবাই' : 'On-Demand Standby'
+        };
+        const city = resolveFieldValue('drv-city', 'drv-city-custom') || 'Dhaka';
+        const payoutMethod = resolveFieldValue('drv-payout-method', 'drv-payout-custom');
+        
+        let payoutDisplay = '—';
+        if (payoutMethod === 'Bank Transfer') {
+          const bankNameFinal = resolveFieldValue('bank-name', 'bank-name-custom');
+          const branch = document.getElementById('bank-branch')?.value || '';
+          const accName = document.getElementById('bank-account-name')?.value || '';
+          const accNum = document.getElementById('bank-account-number')?.value || '';
+          payoutDisplay = `${bankNameFinal || 'Bank'} (${branch || 'Branch'}) - A/C: ${accNum || '—'} [${accName || '—'}]`;
+        } else {
+          const payoutNum = document.getElementById('drv-payout-number')?.value || '—';
+          payoutDisplay = `${payoutMethod || 'Mobile Wallet'} (${payoutNum})`;
         }
-        sumResubmitRow.innerHTML = `<i class="ph-bold ph-arrow-counter-clockwise" style="color:var(--accent); font-size:1.1rem;"></i> <div><strong>${currentLang === 'bn' ? 'আবেদন সংশোধন:' : 'Resubmission Correction:'}</strong> ${resubmitReason} ${resubmitPrevId ? ' (Prev ID: #' + resubmitPrevId + ')' : ''}</div>`;
-        sumResubmitRow.style.display = 'flex';
-      } else if (sumResubmitRow) {
-        sumResubmitRow.style.display = 'none';
-      }
 
-      document.getElementById('sum-name').textContent = name;
-      document.getElementById('sum-phone').textContent = phone;
-      document.getElementById('sum-nid').textContent = nid;
-      document.getElementById('sum-license').textContent = `${licVal} (Exp: ${licExp})`;
-      document.getElementById('sum-role-area').textContent = `${roleMap[role] || role} · ${city}`;
-      document.getElementById('sum-services').textContent = svcs.length > 0 ? svcs.join(', ') : 'None';
-      document.getElementById('sum-payout').textContent = payoutDisplay;
-      const docSummaryEl = document.getElementById('sum-docs');
-      if (docSummaryEl) {
-        docSummaryEl.textContent = docsArr.length > 0 ? docsArr.join(', ') : (currentLang === 'bn' ? 'কোনোটি নয়' : 'None uploaded');
+        const svcs = [];
+        document.querySelectorAll('input[name="services"]:checked').forEach(cb => svcs.push(cb.value));
+
+        // Docs summary
+        const docsArr = [];
+        if (isFleet) {
+          let cDocs = 0;
+          fleetVehicles.forEach(c => {
+            if (c.carLicenseFront) cDocs++;
+            if (c.carLicenseBack) cDocs++;
+            if (c.carFitness) cDocs++;
+          });
+          let dDocs = 0;
+          fleetDrivers.forEach(d => {
+            if (d.photo) dDocs++;
+            if (d.licenseFront) dDocs++;
+            if (d.licenseBack) dDocs++;
+          });
+          docsArr.push(currentLang === 'bn' ? `${fleetVehicles.length}টি গাড়ি (${cDocs} ফাইল) ✓` : `${fleetVehicles.length} Cars (${cDocs} Docs) ✓`);
+          docsArr.push(currentLang === 'bn' ? `${fleetDrivers.length} ড্রাইভার (${dDocs} ফাইল) ✓` : `${fleetDrivers.length} Drivers (${dDocs} Docs) ✓`);
+        } else {
+          if (document.getElementById('file-photo')?.files?.[0]) docsArr.push(currentLang === 'bn' ? 'ছবি ✓' : 'Photo ✓');
+          if (document.getElementById('file-license-front')?.files?.[0]) docsArr.push(currentLang === 'bn' ? 'লাইসেন্স (সামনে) ✓' : 'Lic Front ✓');
+          if (document.getElementById('file-license-back')?.files?.[0]) docsArr.push(currentLang === 'bn' ? 'লাইসেন্স (পেছনে) ✓' : 'Lic Back ✓');
+          if (document.getElementById('file-nid-front')?.files?.[0]) docsArr.push(currentLang === 'bn' ? 'এনআইডি (সামনে) ✓' : 'NID Front ✓');
+          if (document.getElementById('file-nid-back')?.files?.[0]) docsArr.push(currentLang === 'bn' ? 'এনআইডি (পেছনে) ✓' : 'NID Back ✓');
+        }
+
+        // Resubmission status check
+        const isResubmit = document.getElementById('chk-is-resubmission')?.checked || false;
+        const resubmitReason = isResubmit ? (document.getElementById('resubmit-reason')?.value || 'Information Correction') : '';
+        const resubmitPrevId = isResubmit ? (document.getElementById('resubmit-prev-id')?.value.trim() || '') : '';
+        
+        let sumResubmitRow = document.getElementById('sum-row-resubmit');
+        if (isResubmit) {
+          if (!sumResubmitRow) {
+            sumResubmitRow = document.createElement('div');
+            sumResubmitRow.id = 'sum-row-resubmit';
+            sumResubmitRow.style.cssText = 'background:rgba(212,255,0,0.1); border:1px solid rgba(212,255,0,0.3); border-radius:8px; padding:10px 14px; margin-bottom:12px; font-size:0.82rem; color:#fff; display:flex; align-items:center; gap:8px;';
+            const sumTable = document.querySelector('.summary-card-body') || document.getElementById('driver-summary-table') || document.querySelector('.summary-box');
+            if (sumTable) sumTable.insertBefore(sumResubmitRow, sumTable.firstChild);
+          }
+          sumResubmitRow.innerHTML = `<i class="ph-bold ph-arrow-counter-clockwise" style="color:var(--accent); font-size:1.1rem;"></i> <div><strong>${currentLang === 'bn' ? 'আবেদন সংশোধন:' : 'Resubmission Correction:'}</strong> ${resubmitReason} ${resubmitPrevId ? ' (Prev ID: #' + resubmitPrevId + ')' : ''}</div>`;
+          sumResubmitRow.style.display = 'flex';
+        } else if (sumResubmitRow) {
+          sumResubmitRow.style.display = 'none';
+        }
+
+        const nameEl = document.getElementById('sum-name');
+        if (nameEl) nameEl.textContent = name;
+
+        const phoneEl = document.getElementById('sum-phone');
+        if (phoneEl) phoneEl.textContent = phone;
+
+        const nidEl = document.getElementById('sum-nid');
+        if (nidEl) nidEl.textContent = nid;
+
+        const licEl = document.getElementById('sum-license');
+        if (licEl) {
+          if (isFleet) {
+            licEl.textContent = currentLang === 'bn' 
+              ? `${fleetDrivers.length}জন ড্রাইভার লাইসেন্সযুক্ত` 
+              : `${fleetDrivers.length} Licensed Fleet Drivers`;
+          } else {
+            licEl.textContent = (licVal !== '—') ? `${licVal} (Exp: ${licExp})` : '—';
+          }
+        }
+
+        const roleAreaEl = document.getElementById('sum-role-area');
+        if (roleAreaEl) {
+          roleAreaEl.textContent = isOwnerDriver 
+            ? `${roleMap[role]} · ${carPlateVal} · ${city}` 
+            : `${roleMap[role] || role} · ${city}`;
+        }
+
+        const svcsEl = document.getElementById('sum-services');
+        if (svcsEl) svcsEl.textContent = svcs.length > 0 ? svcs.join(', ') : (currentLang === 'bn' ? 'স্ট্যান্ডার্ড' : 'Standard Full Chauffeur');
+
+        const payoutEl = document.getElementById('sum-payout');
+        if (payoutEl) payoutEl.textContent = payoutDisplay;
+
+        const docSummaryEl = document.getElementById('sum-docs');
+        if (docSummaryEl) {
+          docSummaryEl.textContent = docsArr.length > 0 ? docsArr.join(', ') : (currentLang === 'bn' ? 'কোনোটি নয়' : 'None uploaded');
+        }
+      } catch (err) {
+        console.error('Error in populateSummary:', err);
       }
     }
 

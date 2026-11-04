@@ -457,6 +457,11 @@ function autoAlignAndRepairSheet(interactive) {
     "Verification Time"                       // Col AL (38) - Auto Operator timestamp
   ];
 
+  // Ensure row 1 and 2 are completely unmerged before setting headers
+  try {
+    sheet.getRange(1, 1, 2, sheet.getMaxColumns()).breakApart();
+  } catch (unmErr) {}
+
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   var headerRange = sheet.getRange(1, 1, 1, headers.length);
   headerRange.setBackground("#0d0d10");
@@ -609,7 +614,7 @@ function autoAlignAndRepairSheet(interactive) {
     sheet.getRange(2, 1, Math.max(totalDataRows, 1), maxDataCols).clearContent().clearFormat();
 
     if (alignedValues.length > 0) {
-      sheet.getRange(2, 1, alignedValues.length, 37).setValues(alignedValues);
+      sheet.getRange(2, 1, alignedValues.length, headers.length).setValues(alignedValues);
     }
   }
 
@@ -1139,7 +1144,7 @@ function doPost(e) {
     
     if (existingRowCount > 1) {
       try {
-        var existingValues = sheet.getRange(2, 1, existingRowCount - 1, Math.min(sheet.getLastColumn(), 37)).getValues();
+        var existingValues = sheet.getRange(2, 1, existingRowCount - 1, Math.min(sheet.getLastColumn(), 38)).getValues();
         for (var eIdx = 0; eIdx < existingValues.length; eIdx++) {
           var rowP = String(existingValues[eIdx][3] || "").replace(/[^0-9]/g, "").replace(/^880/, "0");
           var rowN = String(existingValues[eIdx][5] || "").replace(/[^0-9]/g, "");

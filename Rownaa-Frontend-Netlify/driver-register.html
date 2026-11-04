@@ -2033,55 +2033,20 @@
               </div>
             </div>
 
-                        <!-- Subtle Returning Applicant Correction Helper (Non-intrusive, collapsed by default) -->
-            <div class="correction-helper-bar" style="margin-top:22px; margin-bottom:16px; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:10px; transition:all 0.3s ease;">
-              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                <div style="font-size:0.78rem; color:var(--text-secondary); display:flex; align-items:center; gap:8px;">
-                  <i class="ph-bold ph-arrow-counter-clockwise" style="color:var(--accent);"></i>
-                  <span id="lbl-correction-hint">Already submitted before and need to correct wrong information? (আগে ভুল তথ্য দিয়ে থাকলে সংশোধন করুন)</span>
-                </div>
-                <button type="button" id="btn-toggle-correction" onclick="toggleCorrectionDrawer()" class="btn-outline" style="padding:5px 12px; font-size:0.74rem; border-radius:7px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.04);">
-                  <i class="ph-bold ph-pencil-simple"></i>
-                  <span id="btn-correction-label">Update / Correct Previous Application</span>
-                </button>
-              </div>
-
-              <!-- Collapsible Correction Drawer -->
-              <div id="resubmission-details-box" style="display:none; margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.12);">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                  <input type="checkbox" id="chk-is-resubmission" onchange="toggleResubmissionFields(this.checked)" checked style="width:16px; height:16px; accent-color:var(--accent); cursor:pointer;"/>
-                  <span style="font-size:0.82rem; font-weight:700; color:#fff;" id="lbl-resubmit-active-badge">Mark this submission as a correction of previous application</span>
-                </div>
-
-                <div class="grid-2">
-                  <div class="f-group">
-                    <label class="f-label" for="resubmit-prev-id">
-                      <span id="lbl-resubmit-prev-id">Previous Application ID (If Known)</span>
-                    </label>
-                    <input type="text" id="resubmit-prev-id" class="f-control no-prefix" placeholder="e.g. DRV-DAC-2377 (Optional)"/>
-                  </div>
-                  <div class="f-group">
-                    <label class="f-label" for="resubmit-reason">
-                      <span id="lbl-resubmit-reason">Primary Reason for Correction <span class="req">*</span></span>
-                    </label>
-                    <select id="resubmit-reason" class="f-control no-prefix">
-                      <option value="Incorrect NID / Smart Card Number" selected>Incorrect NID / Smart Card Number</option>
-                      <option value="Incorrect BRTA License / Expiry Date">Incorrect BRTA License / Expiry Date</option>
-                      <option value="Wrong Mobile / WhatsApp Phone Number">Wrong Mobile / WhatsApp Phone Number</option>
-                      <option value="Updated Vehicle or Fleet Car Information">Updated Vehicle or Fleet Car Information</option>
-                      <option value="Changed Bank Account / Payout Wallet Details">Changed Bank Account / Payout Wallet Details</option>
-                      <option value="Blurry / Incomplete Document Photos Uploaded">Blurry / Incomplete Document Photos Uploaded</option>
-                      <option value="Other Information Correction">Other Information Correction</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="f-group" style="margin-bottom:0;">
-                  <label class="f-label" for="resubmit-notes">
-                    <span id="lbl-resubmit-notes">Correction Explanation for Admin</span>
-                  </label>
-                  <textarea id="resubmit-notes" class="f-control no-prefix" rows="2" placeholder="Briefly specify what was wrong previously so the admin can verify your updated information immediately..."></textarea>
-                </div>
-              </div>
+            <!-- Hidden Form Fields for Resubmission & Correction Tracking (Never clutters Step 1 for first-time applicants) -->
+            <div id="resubmission-hidden-fields" style="display:none;">
+              <input type="checkbox" id="chk-is-resubmission" />
+              <input type="text" id="resubmit-prev-id" placeholder="Previous Application ID" />
+              <select id="resubmit-reason">
+                <option value="Incorrect NID / Smart Card Number" selected>Incorrect NID / Smart Card Number</option>
+                <option value="Incorrect BRTA License / Expiry Date">Incorrect BRTA License / Expiry Date</option>
+                <option value="Wrong Mobile / WhatsApp Phone Number">Wrong Mobile / WhatsApp Phone Number</option>
+                <option value="Updated Vehicle or Fleet Car Information">Updated Vehicle or Fleet Car Information</option>
+                <option value="Changed Bank Account / Payout Wallet Details">Changed Bank Account / Payout Wallet Details</option>
+                <option value="Blurry / Incomplete Document Photos Uploaded">Blurry / Incomplete Document Photos Uploaded</option>
+                <option value="Other Information Correction">Other Information Correction</option>
+              </select>
+              <textarea id="resubmit-notes" placeholder="Correction Explanation for Admin"></textarea>
             </div>
             <div class="form-nav-actions">
               <div></div>
@@ -2824,6 +2789,26 @@
         <p class="success-p" id="succ-desc">
           Congratulations! Your chauffeur application has been officially logged into the Rownaa Operations Registry and synced in real-time to the Executive Fleet Onboarding Ledger. Our verification officer will contact your WhatsApp within 24 hours to schedule verification and orientation.
         </p>
+
+        <!-- CORRECTION & RESUBMISSION ACTION CARD (DIRECT ACCESS ON SUCCESS SCREEN) -->
+        <div class="success-correction-card" id="success-correction-container" style="max-width: 620px; margin: 0 auto 28px; padding: 18px 22px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 255, 0, 0.3); border-radius: 14px; text-align: left; box-shadow: 0 4px 20px rgba(0,0,0,0.35);">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+            <div style="flex: 1; min-width: 250px;">
+              <div style="font-size: 0.94rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                <i class="ph-bold ph-arrow-counter-clockwise" style="color: var(--accent); font-size: 1.2rem;"></i>
+                <span id="lbl-succ-correction-header">Submitted wrong information by mistake? (ভুল তথ্য দিয়ে থাকলে সংশোধন করুন)</span>
+              </div>
+              <div style="font-size: 0.81rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.45;">
+                <span id="lbl-succ-correction-subtext">If you made a mistake in your license number, contact details, vehicle info, or uploaded documents, you can edit and update your application right now. All your entered data will be preserved and automatically linked to this reference ID for expedited admin verification.</span>
+              </div>
+            </div>
+            <button type="button" onclick="reopenApplicationForCorrection()" class="btn-success-action" id="btn-succ-correction-act" style="background: rgba(212, 255, 0, 0.12); border: 1px solid var(--accent); color: var(--accent); font-weight: 700; white-space: nowrap; padding: 11px 18px; border-radius: 9px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <i class="ph-bold ph-pencil-simple"></i>
+              <span id="lbl-succ-correction-btn">Edit & Correct Application (আবেদন সংশোধন)</span>
+            </button>
+          </div>
+        </div>
+
         <div class="success-actions" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
           <a href="index.html" class="btn-success-action btn-success-primary" id="btn-succ-home">Return to Main Website</a>
           <button type="button" onclick="resetDriverForm()" class="btn-success-action btn-success-secondary" id="btn-succ-another">Submit Another Application</button>
@@ -3673,6 +3658,14 @@
       const sumPayLbl = document.getElementById('sum-lbl-payout'); if (sumPayLbl) sumPayLbl.textContent = (lang === 'bn' ? 'পেমেন্ট ওয়ালেট:' : 'Payout Wallet:');
       const lagr = document.getElementById('lbl-agreement'); if (lagr && t.agreementText) lagr.textContent = t.agreementText;
       const sumDocLbl = document.getElementById('sum-lbl-docs'); if (sumDocLbl) sumDocLbl.textContent = (lang === 'bn' ? 'সংযুক্ত নথিপত্র:' : 'Uploaded Documents:');
+
+      // Success screen correction card labels
+      const succCorrH = document.getElementById('lbl-succ-correction-header');
+      if (succCorrH) succCorrH.textContent = (lang === 'bn' ? 'ভুল তথ্য দিয়ে থাকলে সংশোধন করুন' : 'Submitted wrong information by mistake?');
+      const succCorrDesc = document.getElementById('lbl-succ-correction-subtext');
+      if (succCorrDesc) succCorrDesc.textContent = (lang === 'bn' ? 'লাইসেন্স নম্বর, ফোন নম্বর, গাড়ির তথ্য বা নথিপত্রে কোনো ভুল থাকলে এখনই এডিট করে পুনরায় জমা দিতে পারেন। আপনার আপডেট তথ্য সরাসরি এই রেফারেন্স আইডির সাথে লিঙ্ক করে দ্রুত ভেরিফাই করা হবে।' : 'If you made a mistake in your license number, contact details, vehicle info, or uploaded documents, you can edit and update your application right now. All your entered data will be preserved and automatically linked to this reference ID for expedited admin verification.');
+      const succCorrBtn = document.getElementById('lbl-succ-correction-btn');
+      if (succCorrBtn) succCorrBtn.textContent = (lang === 'bn' ? 'আবেদন সংশোধন করুন' : 'Edit & Correct Application');
     }
 
     function toggleLanguage() {
@@ -4668,6 +4661,7 @@
       }
 
       // Show Success Screen
+      window.lastSubmittedAppId = appId;
       document.getElementById('driver-app-shell').style.display = 'none';
       const successScreen = document.getElementById('driver-success-screen');
       successScreen.style.display = 'block';
@@ -4676,7 +4670,72 @@
       window.scrollTo({ top: 100, behavior: 'smooth' });
     }
 
-    
+    /**
+     * Reopen Application For Correction directly from the Success Screen
+     * Preserves all entered form inputs, sets resubmission flags, and displays
+     * active correction banner with current application reference ID.
+     */
+    function reopenApplicationForCorrection() {
+      const successScreen = document.getElementById('driver-success-screen');
+      const appShell = document.getElementById('driver-app-shell');
+      if (successScreen) successScreen.style.display = 'none';
+      if (appShell) appShell.style.display = 'block';
+
+      // Determine current application reference
+      const refEl = document.getElementById('success-ref-badge');
+      const cleanRef = (refEl ? refEl.textContent.replace(/^REF:\s*#?/, '').trim() : '') || window.lastSubmittedAppId || 'DRV-NEW';
+
+      // Flag application as resubmission
+      const chk = document.getElementById('chk-is-resubmission');
+      if (chk) chk.checked = true;
+
+      const prevId = document.getElementById('resubmit-prev-id');
+      if (prevId) prevId.value = cleanRef;
+
+      // Active correction banner at top of form
+      let banner = document.getElementById('active-correction-mode-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'active-correction-mode-banner';
+        banner.style.cssText = 'background: rgba(212, 255, 0, 0.08); border: 1px solid var(--accent); border-radius: 12px; padding: 14px 18px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;';
+        const formCore = document.querySelector('#driver-app-shell .form-core') || document.getElementById('driver-register-form');
+        if (formCore) formCore.insertBefore(banner, formCore.firstChild);
+      }
+
+      const isBn = (typeof currentLang !== 'undefined' && currentLang === 'bn');
+      banner.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; color:#fff; font-size:0.88rem; line-height:1.45; flex:1; min-width:260px;">
+          <i class="ph-bold ph-pencil-simple-line" style="color:var(--accent); font-size:1.5rem; flex-shrink:0;"></i>
+          <div>
+            <div style="font-weight:700; color:var(--accent);">${isBn ? 'সংশোধন মোড সক্রিয় (Correction Mode Active)' : 'Correction Mode Active'}</div>
+            <div style="font-size:0.82rem; color:var(--text-secondary); margin-top:3px;">
+              ${isBn ? `আপনি আবেদন নং <strong style="color:#fff;">#${cleanRef}</strong> এর তথ্য সংশোধন করছেন। যেকোনো ভুল তথ্য বা নথি সংশোধন করে Next চেপে সাবমিট করুন।` : `Editing Application <strong style="color:#fff;">#${cleanRef}</strong>. Modify any wrong details or replace documents, then click Next to submit your update.`}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" onclick="cancelCorrectionMode()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:6px 14px; border-radius:8px; font-size:0.78rem; font-weight:600; cursor:pointer;">
+            ${isBn ? 'মূল স্ক্রিনে ফিরে যান' : 'Back to Success Screen'}
+          </button>
+        </div>
+      `;
+      banner.style.display = 'flex';
+
+      // Go to Step 1 so applicant can review from start while retaining all entered values
+      goToStep(1);
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+
+    function cancelCorrectionMode() {
+      const banner = document.getElementById('active-correction-mode-banner');
+      if (banner) banner.style.display = 'none';
+      const appShell = document.getElementById('driver-app-shell');
+      if (appShell) appShell.style.display = 'none';
+      const successScreen = document.getElementById('driver-success-screen');
+      if (successScreen) successScreen.style.display = 'block';
+      window.scrollTo({ top: 100, behavior: 'smooth' });
+    }
+
     // Smart auto-check for returning applicant when phone is entered
     document.addEventListener('DOMContentLoaded', () => {
       const phoneInput = document.getElementById('drv-phone');
@@ -4700,6 +4759,12 @@
     });
 
     function resetDriverForm() {
+      const banner = document.getElementById('active-correction-mode-banner');
+      if (banner) banner.style.display = 'none';
+      const chk = document.getElementById('chk-is-resubmission');
+      if (chk) chk.checked = false;
+      const prevId = document.getElementById('resubmit-prev-id');
+      if (prevId) prevId.value = '';
       document.getElementById('driver-register-form').reset();
       document.querySelectorAll('.upload-card').forEach(c => c.classList.remove('has-file'));
       document.querySelectorAll('.upload-filename').forEach(f => f.style.display = 'none');

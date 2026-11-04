@@ -369,12 +369,28 @@ function autoAlignAndRepairSheet(interactive) {
     }
   }
 
-  // 2. DEFENSIVE HEALING: Unfreeze & Break apart ANY existing merged cells to prevent freeze exceptions
+  // 2. DEFENSIVE HEALING: Ensure columns exist, Unfreeze & Break apart ANY existing merged cells
+  try {
+    var curCols = sheet.getMaxColumns();
+    if (curCols < 40) {
+      sheet.insertColumnsAfter(curCols, 40 - curCols);
+    }
+  } catch (insErr) {
+    Logger.log("Column expansion note: " + insErr.toString());
+  }
+
   try {
     sheet.setFrozenRows(0);
+  } catch (f0r) {}
+  try {
     sheet.setFrozenColumns(0);
-    var breakR = Math.min(15, sheet.getMaxRows());
-    var breakC = Math.max(60, sheet.getMaxColumns());
+  } catch (f0c) {}
+
+  try {
+    // Break apart all merged cells in data range and first 20 rows defensively
+    sheet.getDataRange().breakApart();
+    var breakR = Math.min(25, sheet.getMaxRows());
+    var breakC = sheet.getMaxColumns();
     sheet.getRange(1, 1, breakR, breakC).breakApart();
   } catch (breakErr) {
     Logger.log("Break apart note: " + breakErr.toString());
@@ -453,9 +469,24 @@ function autoAlignAndRepairSheet(interactive) {
   headerRange.setWrap(false);
   sheet.setRowHeight(1, 44);
 
-  // Freeze Row 1 and Columns 1 to 4 (Guaranteed 100% Exception-Free)
-  sheet.setFrozenRows(1);
-  sheet.setFrozenColumns(4);
+  // Freeze Row 1 and Columns 1 to 4 (Guaranteed 100% Exception-Free with auto-unmerge)
+  try {
+    sheet.setFrozenRows(1);
+  } catch (frErr) {
+    Logger.log("setFrozenRows note: " + frErr.toString());
+  }
+
+  try {
+    sheet.setFrozenColumns(4);
+  } catch (fcErr) {
+    Logger.log("setFrozenColumns note: " + fcErr.toString());
+    try {
+      sheet.getRange(1, 1, 5, sheet.getMaxColumns()).breakApart();
+      sheet.setFrozenColumns(4);
+    } catch (retryFcErr) {
+      Logger.log("setFrozenColumns fallback note: " + retryFcErr.toString());
+    }
+  }
 
   // 4. Process & Realign Existing Data Rows
   var lastRow = sheet.getLastRow();

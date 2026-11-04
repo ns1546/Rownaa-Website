@@ -4832,12 +4832,17 @@
 
       if (targetWebhook) {
         try {
-          await fetch(targetWebhook, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(applicationPayload)
-          });
+          btn.innerHTML = '<i class="ph-bold ph-cloud-arrow-up" style="animation:pulse 1s infinite;"></i> ' + (currentLang === 'bn' ? 'গুগল ড্রাইভে সংরক্ষণ হচ্ছে...' : 'Saving to Drive Vault...');
+          // Fast network dispatch with 4.5s ceiling so user is never blocked or left waiting
+          await Promise.race([
+            fetch(targetWebhook, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(applicationPayload)
+            }),
+            new Promise(resolve => setTimeout(resolve, 4500))
+          ]);
         } catch (fetchErr) {
           console.warn('Google Sheet Webhook sync error (offline fallback preserved):', fetchErr);
         }
